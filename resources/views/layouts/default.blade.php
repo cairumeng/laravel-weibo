@@ -3,10 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Weibo')</title>
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-    @yield('css')
 </head>
 
 <body>
@@ -19,6 +17,7 @@
             @include('layouts._footer')
         </div>
     </div>
+    <script src="{{ mix('js/app.js') }}"></script>
 
 </body>
 
