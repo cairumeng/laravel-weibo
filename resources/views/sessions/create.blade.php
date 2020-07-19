@@ -16,7 +16,8 @@
                     <input type="text" name="email" class="form-control" value="{{ old('email') }}">
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
+                    <label for="password">Password(<a href="{{ route('password.request')}}">forget
+                            password</a>):</label>
                     <input type="password" name="password" class="form-control" value="{{ old('password')}}">
                 </div>
 
@@ -33,6 +34,7 @@
                 <a href="{{ route('signup') }}">
                     Sign up right now
                 </a>
+
             </p>
         </div>
 
