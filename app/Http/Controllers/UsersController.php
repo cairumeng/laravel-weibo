@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store', 'index']
+            'except' => ['show', 'create', 'store', 'index', 'confirmEmail']
         ]);
 
         $this->middleware('guest', [
@@ -41,14 +42,14 @@ class UsersController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        Auth::login($user);
+        $this->sendEmailConfirmationTo($user);
 
         session()->flash(
             'success',
-            'welcome, you will begin your new journey here!'
-        );
+            'Confirmation email is sent to your registred emai address. Please check it!'
 
-        return redirect()->route('users.show', [$user]);
+        );
+        return redirect('/');
     }
 
     public function edit(User $user)
@@ -71,7 +72,7 @@ class UsersController extends Controller
         }
 
         $user->update($data);
-        session()->flash('success', 'update success');
+        session()->flash('success', 'Update successfully');
 
         return redirect()->route('users.show', $user->id);
     }
@@ -86,7 +87,33 @@ class UsersController extends Controller
     {
         $this->authorize('destroy', $user);
         $user->delete();
-        session()->flash('success', 'delete successfully');
+        session()->flash('success', 'Delete successfully');
         return back();
+    }
+
+    protected function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $from = 'summer@example.com';
+        $name = 'Summer';
+        $to = $user->email;
+        $subject = 'Thanks for signing up in our website! Please check your email!';
+
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+
+            $message->from($from, $name)->to($to)->subject($subject);
+        });
+    }
+
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token', $token)->firstOrFail();
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+        Auth::login($user);
+        session()->flash('success', 'Congratulations! Your account is activated!');
+        return redirect()->route('users.show', [$user]);
     }
 }
